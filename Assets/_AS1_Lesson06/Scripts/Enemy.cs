@@ -61,4 +61,25 @@ public class Enemy : MonoBehaviour
         // gameObject.SetActive( true or false )
         gameObject.SetActive( false );
     }
+
+
+    /// <summary>
+    /// 重複衝突
+    /// ----------------------
+    /// Collider2Dの[isTrigger]にチェックが入っている場合の判定
+    /// </summary>
+    void OnTriggerEnter2D( Collider2D hitObject )
+    {
+        Debug.Log("hage");
+
+        // タグが[Bullet]という文字列のオブジェクトのみ判定
+        // 👉 [相手のtag]が[Bulletの文字列]と等しいか？？
+        if( hitObject.transform.tag == "Bullet" )
+        {
+            Debug.Log("Hit!!!");
+            Dead();     // 隠す
+
+            hitObject.gameObject.SetActive(false);
+        }
+    }
 }

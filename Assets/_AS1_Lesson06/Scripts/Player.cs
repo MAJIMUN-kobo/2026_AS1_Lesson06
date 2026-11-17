@@ -14,8 +14,9 @@ using UnityEngine.InputSystem;  // 入力デバイス機能の読み込み
 public class Player : MonoBehaviour
 {
     // === 変数の宣言（フィールド）
-    private float moveSpeed = 1.0f;
+    public GameObject bulletPrefab;     // 弾丸のプレハブの変数
 
+    private float moveSpeed = 1.0f;
 
     /// <summary>
     /// 初期化処理メソッド
@@ -31,6 +32,9 @@ public class Player : MonoBehaviour
     void Update()
     {
         Movement();         // 移動処理を実行
+
+        // ----- 弾丸を出す
+        Shot();
     }
 
 
@@ -66,5 +70,46 @@ public class Player : MonoBehaviour
     {
         // 死亡したら「隠す」
         gameObject.SetActive( false );
+    }
+
+
+    /// <summary>
+    /// 弾丸のプレハブを複製する（弾を撃つ）
+    /// --------------------------------------
+    /// 1. 弾丸のオブジェクトを用意
+    /// 2. 弾丸のオブジェクトを「プレハブ化」
+    /// 3. 弾丸のプレハブをInstantiate()で複製
+    /// 4. 弾丸のRigidbody2Dを利用して射出する
+    /// </summary>
+    public void Shot()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame == true)
+        {
+            // GameObject Instantiate(元のオブジェクト参照, 出現座標, 出現角度);
+            GameObject clone = Instantiate(bulletPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+
+            // クローンのRigidbody2Dを使って射出する
+            Rigidbody2D rb2d = clone.GetComponent<Rigidbody2D>();
+
+            // Rigidbody2D.AddForce( 力の量と方向, フォースモード )
+            rb2d.AddForce(new Vector2(1, 0) * 20, ForceMode2D.Impulse);
+        }
+    }
+
+    
+    /// <summary>
+    /// 重複衝突
+    /// </summary>
+    void OnTriggerEnter2D(Collider2D hitObject)
+    {
+        Debug.Log($"[Player] 何かと重なりました >> {hitObject.name}");
+
+        // タグが[Enemy]という文字列のオブジェクトとの衝突判定
+        if( hitObject.transform.tag =="Enemy" )
+        {
+            Debug.Log("[Player] 敵に衝突しました...");
+
+            Dead();
+        }
     }
 }
